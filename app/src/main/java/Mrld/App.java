@@ -3,12 +3,44 @@
  */
 package Mrld;
 
-public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
+import javax.swing.*;
+import java.awt.*;
 
+public class App extends JFrame {
+    public App() {
+        this.setTitle("Mrld");
+        this.setSize(700, 700);
+        this.setVisible(true);
+        this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+
+        var panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+
+        GridBagConstraints c = new GridBagConstraints();
+
+        var hello = new JTextField();
+        hello.setText("Hello");
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.gridx = 0;
+        c.gridy = 0;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        panel.add(hello, c);
+
+        var world = new JTextField();
+        world.setText("World");
+        c.fill = GridBagConstraints.BOTH;
+        c.weightx = 1;
+        c.gridx = 0;
+        c.gridy = 1;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        panel.add(world, c);
+
+        this.add(panel);
+    }
     public static void main(String[] args) {
-        System.out.println(new App().getGreeting());
+        SwingUtilities.invokeLater(App::new);
     }
 }
