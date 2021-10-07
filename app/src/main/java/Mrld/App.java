@@ -64,7 +64,11 @@ public class App extends JFrame {
                     e.printStackTrace();
                 }
             } else {
-                server.stop();
+                try {
+                    server.stop();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 location.setText("Press start to start the server");
                 start.setText("Start");
             }

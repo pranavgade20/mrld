@@ -6,6 +6,7 @@ import jLHS.exceptions.ProtocolFormatException;
 import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Server extends jLHS.Server {
@@ -52,9 +53,47 @@ public class Server extends jLHS.Server {
                     response.end();
                     return;
                 }
-                response.writeHeader("Content-Type", Files.probeContentType(file.toPath()));
-                response.write(new FileInputStream(file));
-                response.end();
+                String range = request.getHeader("Range");
+                long from = 0, to = 0;
+                if (range != null) {
+                    if (!range.startsWith("bytes")) range = null;
+                    else if (range.contains(",")) range = null;
+                    else {
+                        String[] ranges = range.substring("bytes ".length()).split("[-/]");
+                        if (ranges[0].isBlank()) {
+                            ranges[0] = "0";
+                        }
+                        from = Long.parseLong(ranges[0]);
+                        to = ranges.length > 2 && ranges[1].isEmpty() ? Long.parseLong(ranges[1]) : Files.size(file.toPath());
+                        if (from > to || to > Files.size(file.toPath())) {
+                            range = null;
+                        }
+                    }
+                }
+
+                if (range == null) {
+                    response.writeHeader("Content-Type", Files.probeContentType(file.toPath()));
+                    response.write(new FileInputStream(file));
+                    response.end();
+                } else {
+                    response.setCode(206, "Partial Content");
+                    response.writeHeader("Content-Type", Files.probeContentType(file.toPath()));
+                    response.writeHeader("Content-Length", String.valueOf(to - from));
+                    response.writeHeader("Content-Range", "bytes " + to  + "-" + from + "/" + Files.size(file.toPath()));
+
+                    FileInputStream in = new FileInputStream(file);
+                    OutputStream out = response.getOutputStream();
+                    long skipped = from;
+                    while (skipped > 0) skipped -= in.skip(skipped);
+                    long toTransfer = to-from;
+                    int read;
+                    for(byte[] buffer = new byte[8192]; (read = in.read(buffer, 0, (int) Math.min(8192, toTransfer))) >= 0; toTransfer -= read) {
+                        out.write(buffer, 0, read);
+                    }
+                    out.flush();
+
+                    response.end();
+                }
             } catch (ProtocolFormatException | IOException e) {
                 e.printStackTrace();
             }
@@ -62,7 +101,6 @@ public class Server extends jLHS.Server {
         this.on(Method.GET, "/listFiles/\\S*", ((request, response) -> {
             try {
                 var file = new File(basePath + request.getPath().substring("/listFiles".length()));
-                // TODO implement partial content
                 if (!file.exists()) {
                     response.print("{'error': 'does not exist'}");
                     response.end();
@@ -72,7 +110,7 @@ public class Server extends jLHS.Server {
                     response.end();
                     return;
                 }
-                response.writeHeader("Content-Type", "text/json");
+                response.writeHeader("Content-Type", "application/json");
                 response.print("{\n\"path\": \"" + request.getPath().substring("/listFiles/".length()) + "\"");
                 response.print(",\n\"files\":");
                 response.print(Arrays.stream(file.listFiles()).filter(File::isFile).map(f -> "\"" + f.getName() + "\"").collect(Collectors.toList()).toString());
@@ -85,5 +123,6 @@ public class Server extends jLHS.Server {
             }
         }));
 
+        addDefaultHeaders(List.of("Accept-Ranges: bytes", "Connection: close"));
     }
 }
