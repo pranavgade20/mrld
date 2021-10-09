@@ -1,6 +1,6 @@
 package Mrld;
 
-import jLHS.*;
+import jLHS.Method;
 import jLHS.exceptions.ProtocolFormatException;
 
 import java.io.*;
@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Server extends jLHS.Server {
+public class Server extends jLHS.http1_1server.Server {
     int port;
     String basePath;
 
@@ -21,6 +21,15 @@ public class Server extends jLHS.Server {
             try {
                 response.writeHeader("Content-Type", "text/html");
                 response.write(getClass().getClassLoader().getResourceAsStream("index.html"));
+                response.end();
+            } catch (ProtocolFormatException | IOException e) {
+                e.printStackTrace();
+            }
+        }));
+        this.on(Method.GET, "/k", ((request, response) -> {
+            try {
+                response.writeHeader("Content-Type", "text/html");
+                response.print("k");
                 response.end();
             } catch (ProtocolFormatException | IOException e) {
                 e.printStackTrace();
@@ -46,7 +55,6 @@ public class Server extends jLHS.Server {
         this.on(Method.GET, "/file/\\S*", ((request, response) -> {
             try {
                 var file = new File(basePath + request.getPath().substring("/file".length()));
-                // TODO implement partial content
                 if (!file.isFile()) {
                     response.setCode(404, "Not Found");
                     response.print("The requested file was not found on this server.");
@@ -64,7 +72,7 @@ public class Server extends jLHS.Server {
                             ranges[0] = "0";
                         }
                         from = Long.parseLong(ranges[0]);
-                        to = ranges.length > 2 && ranges[1].isEmpty() ? Long.parseLong(ranges[1]) : Files.size(file.toPath());
+                        to = ranges.length > 2 && ranges[1].isEmpty() ? Files.size(file.toPath()) : Long.parseLong(ranges[1]);
                         if (from > to || to > Files.size(file.toPath())) {
                             range = null;
                         }
@@ -79,18 +87,11 @@ public class Server extends jLHS.Server {
                     response.setCode(206, "Partial Content");
                     response.writeHeader("Content-Type", Files.probeContentType(file.toPath()));
                     response.writeHeader("Content-Length", String.valueOf(to - from));
-                    response.writeHeader("Content-Range", "bytes " + to  + "-" + from + "/" + Files.size(file.toPath()));
+                    response.writeHeader("Content-Range", "bytes " + from  + "-" + to + "/" + Files.size(file.toPath()));
 
                     FileInputStream in = new FileInputStream(file);
-                    OutputStream out = response.getOutputStream();
-                    long skipped = from;
-                    while (skipped > 0) skipped -= in.skip(skipped);
-                    long toTransfer = to-from;
-                    int read;
-                    for(byte[] buffer = new byte[8192]; (read = in.read(buffer, 0, (int) Math.min(8192, toTransfer))) >= 0; toTransfer -= read) {
-                        out.write(buffer, 0, read);
-                    }
-                    out.flush();
+                    in.skipNBytes(from);
+                    response.write(in); //FIXME this should transfer (to-from) bytes only
 
                     response.end();
                 }
@@ -123,6 +124,6 @@ public class Server extends jLHS.Server {
             }
         }));
 
-        addDefaultHeaders(List.of("Accept-Ranges: bytes", "Connection: close"));
+        addDefaultHeaders(List.of("Accept-Ranges: bytes", "Connection: keep-alive", "Keep-Alive: timeout=5000, max=10000"));
     }
 }

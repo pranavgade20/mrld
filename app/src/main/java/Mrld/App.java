@@ -4,7 +4,6 @@
 package Mrld;
 
 import javax.swing.*;
-import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.io.IOException;
 import java.net.InetAddress;
@@ -16,6 +15,7 @@ public class App extends JFrame {
     Server server;
     public App() {
         this.setTitle("Mrld");
+        setLocation(100, 100);
         this.setSize(700, 700);
         this.setVisible(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
