@@ -72,9 +72,12 @@ public class Server extends jLHS.http1_1server.Server {
                             ranges[0] = "0";
                         }
                         from = Long.parseLong(ranges[0]);
-                        to = ranges.length > 2 && ranges[1].isEmpty() ? Files.size(file.toPath()) : Long.parseLong(ranges[1]);
+                        to = ranges.length > 2 && ranges[1].isEmpty() ? Files.size(file.toPath()) : (Long.parseLong(ranges[1])+1);
                         if (from > to || to > Files.size(file.toPath())) {
-                            range = null;
+                            response.setCode(416, "Range Not Satisfiable");
+                            response.print("The requested range can not be satisfied.");
+                            response.end();
+                            return;
                         }
                     }
                 }
@@ -87,11 +90,28 @@ public class Server extends jLHS.http1_1server.Server {
                     response.setCode(206, "Partial Content");
                     response.writeHeader("Content-Type", Files.probeContentType(file.toPath()));
                     response.writeHeader("Content-Length", String.valueOf(to - from));
-                    response.writeHeader("Content-Range", "bytes " + from  + "-" + to + "/" + Files.size(file.toPath()));
+                    response.writeHeader("Content-Range", "bytes " + from  + "-" + (to-1) + "/" + Files.size(file.toPath()));
 
                     FileInputStream in = new FileInputStream(file);
                     in.skipNBytes(from);
-                    response.write(in); //FIXME this should transfer (to-from) bytes only
+                    long finalTo = to;
+                    long finalFrom = from;
+                    response.write(new InputStream() {
+                        long remaining = finalTo - finalFrom;
+                        @Override
+                        public int read() throws IOException {
+                            if (remaining-- > 0) return in.read();
+                            return -1;
+                        }
+
+                        @Override
+                        public int read(byte[] b, int off, int len) throws IOException {
+                            if (remaining < 1) return -1;
+                            int ret = in.read(b, off, (int) Math.min(remaining, len));
+                            if (ret > 0) remaining -= ret;
+                            return ret;
+                        }
+                    });
 
                     response.end();
                 }
