@@ -5,78 +5,142 @@ package Mrld;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
+import java.io.File;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicReference;
+
+class ServerLinkPanel extends JPanel {
+    ServerLinkPanel(String ip) {
+        JTextField ipText = new JTextField(ip);
+        ipText.setEditable(false);
+        ImageIcon copy = new ImageIcon(getClass().getClassLoader().getResource("copy.png"));
+        JButton copyButton = new JButton("Copy");
+//        copyButton.setIcon(copy); // will uncomment once ik how to make this small, hehe
+        copyButton.addActionListener(e -> {
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(ip), null);
+        });
+        this.add(ipText);
+        this.add(copyButton);
+    }
+}
 
 public class App extends JFrame {
     Server server;
-    public App() {
+    public App() throws IOException, FontFormatException, URISyntaxException {
+
+        AtomicReference<String> rootPath = new AtomicReference<>("/home/");
+        Color primaryColor = new Color(185, 253, 244);
+
         this.setTitle("Mrld");
         setLocation(100, 100);
         this.setSize(700, 700);
         this.setVisible(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        this.getContentPane().setBackground(primaryColor);
 
-        var panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
+        ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
+        ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("icon.png"));
 
-        GridBagConstraints c = new GridBagConstraints();
+        this.setIconImage(icon.getImage());
 
-        var location = new JFormattedTextField();
-        location.setEditable(false);
-        location.setFont(new Font("Arial", Font.PLAIN, 30));
-        location.setText("Press start to start the server");
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.gridy = 0;
-        c.gridwidth = 1;
-        c.gridheight = 1;
-        panel.add(location, c);
+        JLabel logoLabel = new JLabel();
+        logoLabel.setIcon(logo);
 
-        var start = new JButton();
-        start.setText("Start");
-        c.fill = GridBagConstraints.BOTH;
-        c.weightx = 1;
-        c.gridx = 0;
-        c.gridy = 1;
-        c.gridwidth = 1;
-        c.gridheight = 1;
-        panel.add(start, c);
+        JLabel rootLabel = new JLabel("Your root directory is:");
 
-        start.addActionListener((actionEvent) -> {
-            if (start.getText().equals("Start")) {
+        JTextField rootText = new JTextField();
+        rootText.setText(System.getProperty("user.home"));
+        rootText.setEditable(false);
+
+        JButton chooseRootButton = new JButton("Change root directory");
+        chooseRootButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            int response = fileChooser.showOpenDialog(this);
+            if(response == JFileChooser.APPROVE_OPTION) {
+                rootPath.set(fileChooser.getSelectedFile().getAbsolutePath());
+                rootText.setText(rootPath.get());
+            }
+        });
+
+        JPanel rootPanel = new JPanel();
+        rootPanel.add(rootLabel);
+        rootPanel.add(rootText);
+        rootPanel.add(chooseRootButton);
+
+        var prompt = new JFormattedTextField();
+        prompt.setEditable(false);
+        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(getClass().getClassLoader().getResource("font.ttf").toURI())).deriveFont(12f);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        //register the font
+        ge.registerFont(customFont);
+        prompt.setFont(customFont);
+        prompt.setText("Press start to start the server");
+
+        JButton startButton = new JButton("Start");
+
+        JPanel serverPanel = new JPanel();
+        serverPanel.add(prompt);
+        serverPanel.add(startButton);
+
+        JPanel serverLinksPanel= new JPanel();
+
+        startButton.addActionListener((actionEvent) -> {
+            if (startButton.getText().equals("Start")) {
                 try {
-                    server = new Server(8080, "/home/");
+                    server = new Server(8080, rootPath.get());
                     server.start();
-                    location.setText(Collections.list(NetworkInterface.getNetworkInterfaces()).stream()
+                    String[] ips = Collections.list(NetworkInterface.getNetworkInterfaces()).stream()
                             .flatMap(a -> Collections.list(a.getInetAddresses()).stream())
                             .filter(InetAddress::isSiteLocalAddress)
                             .filter(a -> !a.isLoopbackAddress())
                             .map(a -> "http:/"+a+":8080/")
-                            .collect(Collectors.toList()).toString());
-
-                    start.setText("Stop");
+                            .toArray(String[]::new);
+                    for(String ip: ips) {
+                        serverLinksPanel.add(new ServerLinkPanel(ip));
+                        System.out.println(ip);
+                    }
+                    serverLinksPanel.revalidate();
+                    serverLinksPanel.repaint();
+                    startButton.setText("Stop");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             } else {
                 try {
                     server.stop();
+                    Component[] components = serverLinksPanel.getComponents();
+                    for(Component comp: components) {
+                        serverLinksPanel.remove(comp);
+                    }
+                    serverLinksPanel.revalidate();
+                    serverLinksPanel.repaint();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-                location.setText("Press start to start the server");
-                start.setText("Start");
+                prompt.setText("Press start to start the server");
+                startButton.setText("Start");
             }
         });
 
-        this.add(panel);
+        this.setLayout(new GridLayout(4,1));
+        this.add(logoLabel);
+        this.add(rootPanel);
+        this.add(serverPanel);
+        this.add(serverLinksPanel);
     }
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(App::new);
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new App();
+            } catch (IOException | FontFormatException | URISyntaxException e) {
+                e.printStackTrace();
+            }
+        });
     }
 }
