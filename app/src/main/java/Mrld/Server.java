@@ -15,6 +15,7 @@ public class Server extends jLHS.http1_1server.Server {
 
     public Server(int port, String basePath) throws IOException {
         super(port);
+        super.MAX_CONCURRENT_CONNECTIONS = 16;
         this.port = port;
         this.basePath = basePath;
         this.on(Method.GET, "/", ((request, response) -> {
