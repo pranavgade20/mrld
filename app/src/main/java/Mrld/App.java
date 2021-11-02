@@ -4,6 +4,7 @@
 package Mrld;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
@@ -15,17 +16,26 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
 class ServerLinkPanel extends JPanel {
-    ServerLinkPanel(String ip) {
-        JTextField ipText = new JTextField(ip);
+    ServerLinkPanel(String ip, Font customFont) {
+        JTextField ipText = new JFormattedTextField(ip);
+        ipText.setFont(customFont);
+        ipText.setBackground(new Color(223,253,251));
+        ipText.setPreferredSize(new Dimension(200,24));
+        ipText.setBorder(new LineBorder(new Color(223,253,251),2));
         ipText.setEditable(false);
         ImageIcon copy = new ImageIcon(getClass().getClassLoader().getResource("copy.png"));
-        JButton copyButton = new JButton("Copy");
-//        copyButton.setIcon(copy); // will uncomment once ik how to make this small, hehe
+        JButton copyButton = new JButton();
+        copyButton.setBackground(new Color(158,237,233));
+        copyButton.setPreferredSize(new Dimension(24, 24));
+       // copyButton.setBorder(BorderFactory.createLineBorder(new Color(158,237,233)));
+        copyButton.setFocusPainted(false);
+        copyButton.setIcon(copy);
         copyButton.addActionListener(e -> {
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(ip), null);
         });
         this.add(ipText);
         this.add(copyButton);
+        this.setOpaque(false);
     }
 }
 
@@ -35,29 +45,46 @@ public class App extends JFrame {
 
         AtomicReference<String> rootPath = new AtomicReference<>("/home/");
         Color primaryColor = new Color(185, 253, 244);
-
+        Color color2 = new Color(223,253,251);
+        Color color3 = new Color(160, 233, 234);
         this.setTitle("Mrld");
         setLocation(100, 100);
         this.setSize(700, 700);
-        this.setVisible(true);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        this.getContentPane().setBackground(primaryColor);
 
         ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
         ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("icon.png"));
+        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(getClass().getClassLoader().getResource("font.ttf").toURI())).deriveFont(12f);
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        ge.registerFont(customFont);
 
         this.setIconImage(icon.getImage());
 
+        JPanel logoPanel= new JPanel();
         JLabel logoLabel = new JLabel();
         logoLabel.setIcon(logo);
+        logoLabel.setHorizontalAlignment(JLabel.CENTER);
+        logoPanel.setOpaque(false);
+        logoPanel.add(logoLabel);
 
         JLabel rootLabel = new JLabel("Your root directory is:");
+        rootLabel.setFont(customFont);
 
-        JTextField rootText = new JTextField();
+        JTextField rootText = new JFormattedTextField();
+        rootText.setFont(customFont);
+        rootText.setBackground(color2);
+        rootText.setBorder(new LineBorder(color2,0));
+        rootText.setPreferredSize(new Dimension(192, 24));
         rootText.setText(System.getProperty("user.home"));
         rootText.setEditable(false);
 
-        JButton chooseRootButton = new JButton("Change root directory");
+        ImageIcon folder = new ImageIcon(getClass().getClassLoader().getResource("folder.png"));
+        JButton chooseRootButton = new JButton();//"Change root directory");
+        chooseRootButton.setIcon(folder);
+        chooseRootButton.setFont(customFont);
+        chooseRootButton.setFocusPainted(false);
+        chooseRootButton.setBackground(new Color(158,237,233));
+        chooseRootButton.setPreferredSize(new Dimension(24, 24));
         chooseRootButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -68,27 +95,35 @@ public class App extends JFrame {
             }
         });
 
+        JPanel rootButtons = new JPanel();
+        rootButtons.setBackground(primaryColor);
+        rootButtons.add(rootLabel);
+        rootButtons.add(rootText);
+        rootButtons.add(chooseRootButton);
         JPanel rootPanel = new JPanel();
-        rootPanel.add(rootLabel);
-        rootPanel.add(rootText);
-        rootPanel.add(chooseRootButton);
+        rootPanel.setLayout(new BoxLayout(rootPanel, BoxLayout.Y_AXIS));
+        rootPanel.setOpaque(false);
+        rootPanel.add(rootButtons);
 
         var prompt = new JFormattedTextField();
         prompt.setEditable(false);
-        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(getClass().getClassLoader().getResource("font.ttf").toURI())).deriveFont(12f);
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        //register the font
-        ge.registerFont(customFont);
+        prompt.setBackground(primaryColor);
+        prompt.setBorder(new LineBorder(primaryColor,2));
         prompt.setFont(customFont);
         prompt.setText("Press start to start the server");
 
         JButton startButton = new JButton("Start");
+        startButton.setFont(customFont);
+        startButton.setFocusPainted(false);
+        startButton.setBackground(new Color(158,237,233));
 
         JPanel serverPanel = new JPanel();
+        serverPanel.setOpaque(false);
         serverPanel.add(prompt);
         serverPanel.add(startButton);
 
         JPanel serverLinksPanel= new JPanel();
+        serverLinksPanel.setOpaque(false);
 
         startButton.addActionListener((actionEvent) -> {
             if (startButton.getText().equals("Start")) {
@@ -102,12 +137,13 @@ public class App extends JFrame {
                             .map(a -> "http:/"+a+":8080/")
                             .toArray(String[]::new);
                     for(String ip: ips) {
-                        serverLinksPanel.add(new ServerLinkPanel(ip));
+                        serverLinksPanel.add(new ServerLinkPanel(ip, customFont));
                         System.out.println(ip);
                     }
                     serverLinksPanel.revalidate();
                     serverLinksPanel.repaint();
                     startButton.setText("Stop");
+                    this.pack();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -125,14 +161,18 @@ public class App extends JFrame {
                 }
                 prompt.setText("Press start to start the server");
                 startButton.setText("Start");
+                this.pack();
             }
         });
 
-        this.setLayout(new GridLayout(4,1));
-        this.add(logoLabel);
+        this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
+        this.add(logoPanel);
         this.add(rootPanel);
         this.add(serverPanel);
         this.add(serverLinksPanel);
+        this.getContentPane().setBackground(primaryColor);
+        this.setVisible(true);
+        this.pack();
     }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
