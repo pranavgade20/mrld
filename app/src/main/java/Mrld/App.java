@@ -16,20 +16,20 @@ import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 
 class ServerLinkPanel extends JPanel {
-    ServerLinkPanel(String ip, Font customFont) {
+    ServerLinkPanel(String ip, Font customFont, Color textBackGroundColor) {
         JTextField ipText = new JFormattedTextField(ip);
         ipText.setFont(customFont);
-        ipText.setBackground(new Color(223,253,251));
+        ipText.setBackground(textBackGroundColor);
         ipText.setPreferredSize(new Dimension(200,24));
-        ipText.setBorder(new LineBorder(new Color(223,253,251),2));
+        ipText.setBorder(new LineBorder(textBackGroundColor));
         ipText.setEditable(false);
         ImageIcon copy = new ImageIcon(getClass().getClassLoader().getResource("copy.png"));
         JButton copyButton = new JButton();
         copyButton.setBackground(new Color(158,237,233));
         copyButton.setPreferredSize(new Dimension(24, 24));
-       // copyButton.setBorder(BorderFactory.createLineBorder(new Color(158,237,233)));
         copyButton.setFocusPainted(false);
         copyButton.setIcon(copy);
+        copyButton.setToolTipText("Click here to copy the URL");
         copyButton.addActionListener(e -> {
             Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(ip), null);
         });
@@ -45,15 +45,15 @@ public class App extends JFrame {
 
         AtomicReference<String> rootPath = new AtomicReference<>("/home/");
         Color primaryColor = new Color(185, 253, 244);
-        Color color2 = new Color(223,253,251);
-        Color color3 = new Color(160, 233, 234);
+        Color textBackgroundColor = new Color(223,253,251);
         this.setTitle("Mrld");
         setLocation(100, 100);
-        this.setSize(700, 700);
+        this.setSize(500, 500);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
         ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("icon.png"));
+
         Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(getClass().getClassLoader().getResource("font.ttf").toURI())).deriveFont(12f);
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         ge.registerFont(customFont);
@@ -72,8 +72,8 @@ public class App extends JFrame {
 
         JTextField rootText = new JFormattedTextField();
         rootText.setFont(customFont);
-        rootText.setBackground(color2);
-        rootText.setBorder(new LineBorder(color2,0));
+        rootText.setBackground(textBackgroundColor);
+        rootText.setBorder(new LineBorder(textBackgroundColor,0));
         rootText.setPreferredSize(new Dimension(192, 24));
         rootText.setText(System.getProperty("user.home"));
         rootText.setEditable(false);
@@ -81,6 +81,7 @@ public class App extends JFrame {
         ImageIcon folder = new ImageIcon(getClass().getClassLoader().getResource("folder.png"));
         JButton chooseRootButton = new JButton();//"Change root directory");
         chooseRootButton.setIcon(folder);
+        chooseRootButton.setToolTipText("Click here to change the root directory");
         chooseRootButton.setFont(customFont);
         chooseRootButton.setFocusPainted(false);
         chooseRootButton.setBackground(new Color(158,237,233));
@@ -137,13 +138,12 @@ public class App extends JFrame {
                             .map(a -> "http:/"+a+":8080/")
                             .toArray(String[]::new);
                     for(String ip: ips) {
-                        serverLinksPanel.add(new ServerLinkPanel(ip, customFont));
+                        serverLinksPanel.add(new ServerLinkPanel(ip, customFont, textBackgroundColor));
                         System.out.println(ip);
                     }
                     serverLinksPanel.revalidate();
                     serverLinksPanel.repaint();
                     startButton.setText("Stop");
-                    this.pack();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -161,18 +161,22 @@ public class App extends JFrame {
                 }
                 prompt.setText("Press start to start the server");
                 startButton.setText("Start");
-                this.pack();
             }
         });
 
-        this.setLayout(new BoxLayout(this.getContentPane(), BoxLayout.Y_AXIS));
-        this.add(logoPanel);
-        this.add(rootPanel);
-        this.add(serverPanel);
-        this.add(serverLinksPanel);
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(primaryColor);
+        panel.add(logoPanel);
+        panel.add(rootPanel);
+        panel.add(serverPanel);
+        panel.add(serverLinksPanel);
+
+        JScrollPane scrollPane = new JScrollPane(this.getContentPane());
+        this.setContentPane(scrollPane);
+        scrollPane.setViewportView(panel);
         this.getContentPane().setBackground(primaryColor);
         this.setVisible(true);
-        this.pack();
     }
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
