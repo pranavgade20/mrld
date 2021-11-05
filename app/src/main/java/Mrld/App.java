@@ -30,9 +30,7 @@ class ServerLinkPanel extends JPanel {
         copyButton.setFocusPainted(false);
         copyButton.setIcon(copy);
         copyButton.setToolTipText("Click here to copy the URL");
-        copyButton.addActionListener(e -> {
-            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(ip), null);
-        });
+        copyButton.addActionListener(e -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(ip), null));
         this.add(ipText);
         this.add(copyButton);
         this.setOpaque(false);
@@ -43,7 +41,7 @@ public class App extends JFrame {
     Server server;
     public App() throws IOException, FontFormatException, URISyntaxException {
 
-        AtomicReference<String> rootPath = new AtomicReference<>("/home/");
+        AtomicReference<String> rootPath = new AtomicReference<>(System.getProperty("user.home"));
         Color primaryColor = new Color(185, 253, 244);
         Color textBackgroundColor = new Color(223,253,251);
         this.setTitle("Mrld");
@@ -75,7 +73,7 @@ public class App extends JFrame {
         rootText.setBackground(textBackgroundColor);
         rootText.setBorder(new LineBorder(textBackgroundColor,0));
         rootText.setPreferredSize(new Dimension(192, 24));
-        rootText.setText(System.getProperty("user.home"));
+        rootText.setText(rootPath.get());
         rootText.setEditable(false);
 
         ImageIcon folder = new ImageIcon(getClass().getClassLoader().getResource("folder.png"));
@@ -129,7 +127,7 @@ public class App extends JFrame {
         startButton.addActionListener((actionEvent) -> {
             if (startButton.getText().equals("Start")) {
                 try {
-                    server = new Server(8080, rootPath.get());
+                    server = new Server(8080, rootPath);
                     server.start();
                     String[] ips = Collections.list(NetworkInterface.getNetworkInterfaces()).stream()
                             .flatMap(a -> Collections.list(a.getInetAddresses()).stream())

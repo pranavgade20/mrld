@@ -7,13 +7,14 @@ import java.io.*;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 public class Server extends jLHS.http1_1server.Server {
     int port;
-    String basePath;
+    AtomicReference<String> basePath;
 
-    public Server(int port, String basePath) throws IOException {
+    public Server(int port, AtomicReference<String> basePath) throws IOException {
         super(port);
         super.MAX_CONCURRENT_CONNECTIONS = 16;
         this.port = port;
@@ -27,10 +28,10 @@ public class Server extends jLHS.http1_1server.Server {
                 e.printStackTrace();
             }
         }));
-        this.on(Method.GET, "/k", ((request, response) -> {
+        this.on(Method.GET, "/ping", ((request, response) -> {
             try {
                 response.writeHeader("Content-Type", "text/html");
-                response.print("k");
+                response.print("pong");
                 response.end();
             } catch (ProtocolFormatException | IOException e) {
                 e.printStackTrace();
@@ -53,9 +54,9 @@ public class Server extends jLHS.http1_1server.Server {
                 e.printStackTrace();
             }
         }));
-        this.on(Method.GET, "/file/\\S*", ((request, response) -> {
+        this.on(Method.GET, "/file/[\\S\\s]*", ((request, response) -> {
             try {
-                var file = new File(basePath + request.getPath().substring("/file".length()));
+                var file = new File(basePath.get() + request.getPath().substring("/file".length()));
                 if (!file.isFile()) {
                     response.setCode(404, "Not Found");
                     response.print("The requested file was not found on this server.");
@@ -120,15 +121,15 @@ public class Server extends jLHS.http1_1server.Server {
                 e.printStackTrace();
             }
         }));
-        this.on(Method.GET, "/listFiles/\\S*", ((request, response) -> {
+        this.on(Method.GET, "/listFiles/[\\S\\s]*", ((request, response) -> {
             try {
-                var file = new File(basePath + request.getPath().substring("/listFiles".length()));
+                var file = new File(basePath.get() + request.getPath().substring("/listFiles".length()));
                 if (!file.exists()) {
-                    response.print("{'error': 'does not exist'}");
+                    response.print("{\"error\": \"does not exist\"}");
                     response.end();
                     return;
                 } else if (!file.isDirectory()) {
-                    response.print("{'error': 'not a directory'}");
+                    response.print("{\"error\": \"not a directory\"}");
                     response.end();
                     return;
                 }
@@ -144,6 +145,33 @@ public class Server extends jLHS.http1_1server.Server {
                 e.printStackTrace();
             }
         }));
+
+        this.on(Method.POST, "/upload/[\\S\\s]*", (((request, response) -> {
+            try {
+                var file = new File(basePath.get() + request.getPath().substring("/upload".length()));
+                if (file.exists()) {
+                    response.print("{\"error\": \"file already exists\"}");
+                    response.end();
+                    return;
+                }
+
+                var fileOutputStream = new FileOutputStream(file);
+                request.getRequestReader().getFormData("file").orElseThrow().getFormData().transferTo(fileOutputStream);
+                fileOutputStream.close();
+
+                response.writeHeader("Content-Type", "application/json");
+                response.print("{\"success\": \"file uploaded\"}");
+                response.end();
+            } catch (ProtocolFormatException | IOException e) {
+                try {
+                    response.setCode(500, "Internal server error");
+                    response.end();
+                } catch (ProtocolFormatException | IOException ex) {
+                    ex.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+        })));
 
         addDefaultHeaders(List.of("Accept-Ranges: bytes", "Connection: keep-alive", "Keep-Alive: timeout=5000, max=10000"));
     }
