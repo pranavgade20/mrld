@@ -23,8 +23,7 @@ public class Server extends jLHS.http1_1server.Server {
             try {
                 response.setCode(301, "Moved Permanently");
                 response.writeHeader("Content-Type", "text/html");
-                response.writeHeader("Location", "/app");
-                response.write(getClass().getClassLoader().getResourceAsStream("Moved to <a href=\"/app\">/app</a>"));
+                response.writeHeader("Location", "/app/");
                 response.end();
             } catch (ProtocolFormatException | IOException e) {
                 e.printStackTrace();

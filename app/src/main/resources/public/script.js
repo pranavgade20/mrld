@@ -34,5 +34,5 @@ const main = async (url) => {
 };
 
 
-(async () => await main(window.location.href + "listFiles/"))();
+(async () => await main(window.location.href.replace("/app/", "/listFiles/")))();
 
