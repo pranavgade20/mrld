@@ -12,6 +12,7 @@ import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.URISyntaxException;
 import java.util.Collections;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
 class ServerLinkPanel extends JPanel {
@@ -22,14 +23,14 @@ class ServerLinkPanel extends JPanel {
         ipText.setPreferredSize(new Dimension(200,24));
         ipText.setBorder(new LineBorder(textBackGroundColor));
         ipText.setEditable(false);
+        JLabel qrLabel = new JLabel();
         try {
-            new GenerateQRCode(ip);
+            GenerateQRCode code = new GenerateQRCode(ip);
+            ImageIcon qr = new ImageIcon(code.image);
+            qrLabel.setIcon(qr);
         } catch(Exception e) {
             e.printStackTrace();
         }
-        ImageIcon qr = new ImageIcon(getClass().getClassLoader().getResource(ip + ".png"));
-        JLabel qrLabel = new JLabel();
-        qrLabel.setIcon(qr);
         ImageIcon copy = new ImageIcon(getClass().getClassLoader().getResource("copy.png"));
         JButton copyButton = new JButton();
         copyButton.setBackground(new Color(158,237,233));
@@ -142,7 +143,7 @@ public class App extends JFrame {
                             .flatMap(a -> Collections.list(a.getInetAddresses()).stream())
                             .filter(InetAddress::isSiteLocalAddress)
                             .filter(a -> !a.isLoopbackAddress())
-                            .map(a -> "http:/"+a+":8080/")
+                            .map(a -> "http:/"+a+":" + port +"/")
                             .toArray(String[]::new);
                     for(String ip: ips) {
                         serverLinksPanel.add(new ServerLinkPanel(ip, customFont, textBackgroundColor));
