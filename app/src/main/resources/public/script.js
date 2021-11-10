@@ -3,6 +3,8 @@ const getData = async (path) => {
     return data;
 }
 
+const history = [];
+
 const main = async (url) => {
     const data = await getData(url);
     const path = data.path;
@@ -13,6 +15,13 @@ const main = async (url) => {
     const dirList = document.getElementById('dir-list');
     const fileHead = document.getElementById('file-head');
     const dirHead = document.getElementById('dir-head');
+    const backButton = document.getElementById('back');
+    const historyDisplay = document.getElementById('history');
+
+    if(history.length>0) backButton.style.display = "block";
+    else backButton.style.display = "none";
+
+    historyDisplay.innerText = url.split('listFiles/')[1].replace(/\//g, " > ");
 
     const displayList = () => {
 	fileHead.style.display = "none";
@@ -33,12 +42,16 @@ const main = async (url) => {
             const item = template.content.cloneNode(true);
             item.querySelector('.link').innerText = directories[i];
             item.querySelector(".link").addEventListener("click", (e) => {
-                main(window.location.href + 'listFiles/' + path + '/' + directories[i]);
+		const nextUrl = window.location.href + 'listFiles/' + path + '/' + directories[i];
+		history.push(url);
+                main(nextUrl);
             });
             dirList.append(item);
         }
     }
     displayList();
+
+    backButton.addEventListener("click", e => main(history.pop()));
 };
 
 

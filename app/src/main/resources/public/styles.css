@@ -2,6 +2,20 @@
     box-sizing: border-box;
 }
 
+#history {
+    font-size: 1.2rem;
+    padding: 1rem;
+}
+
+#back {
+    margin-left: 1rem;
+    font-size: 1.2rem;
+    background-color: transparent;
+    border: 2px lightgrey solid;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
 #file-list, #dir-list {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
