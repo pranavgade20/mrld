@@ -136,7 +136,8 @@ public class App extends JFrame {
         startButton.addActionListener((actionEvent) -> {
             if (startButton.getText().equals("Start")) {
                 try {
-                    server = new Server(8080, rootPath);
+                    int port = new Random().nextInt(50000) + 10000;
+                    server = new Server(port, rootPath);
                     server.start();
                     String[] ips = Collections.list(NetworkInterface.getNetworkInterfaces()).stream()
                             .flatMap(a -> Collections.list(a.getInetAddresses()).stream())
