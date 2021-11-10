@@ -5,6 +5,15 @@ const getData = async (path) => {
 
 const history = [];
 
+const setAction = (form) => {
+      const myFile = document.getElementById('uploadFile');
+      const onSubmit = document.getElementById('submit')
+      const path = data.path;
+//    alert(fileName.value.replace("C:\\fakepath\\", ' '));
+      form.action = window.location.href.replace("/app/", "/upload/") + path + '/' + fileName.value.replace("C:\\fakepath\\", ' ');
+      return false;
+}
+
 const main = async (url) => {
     const data = await getData(url);
     const path = data.path;
@@ -35,14 +44,14 @@ const main = async (url) => {
 	    }
             const item = template.content.cloneNode(true);
             item.querySelector('.link').innerText = files[i];
-            item.querySelector('.link').setAttribute("href", window.location.href + 'file/' + path + '/' + files[i]);
+            item.querySelector('.link').setAttribute("href", window.location.href.replace("/app/", "/file/") + path + '/' + files[i]);
             fileList.append(item);
         }
         for(let i = 0; i < directories.length; i++) {
             const item = template.content.cloneNode(true);
             item.querySelector('.link').innerText = directories[i];
             item.querySelector(".link").addEventListener("click", (e) => {
-		const nextUrl = window.location.href + 'listFiles/' + path + '/' + directories[i];
+		const nextUrl = window.location.href.replace('/app/', '/listFiles/') + path + '/' + directories[i];
 		history.push(url);
                 main(nextUrl);
             });
