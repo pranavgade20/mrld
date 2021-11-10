@@ -28,6 +28,15 @@ public class Server extends jLHS.http1_1server.Server {
                 e.printStackTrace();
             }
         }));
+        this.on(Method.GET, "/app/[\\S\\s]*", ((request, response) -> {
+            try {
+                response.writeHeader("Content-Type", "text/html");
+                response.write(getClass().getClassLoader().getResourceAsStream("index.html"));
+                response.end();
+            } catch (ProtocolFormatException | IOException e) {
+                e.printStackTrace();
+            }
+        }));
         this.on(Method.GET, "/ping", ((request, response) -> {
             try {
                 response.writeHeader("Content-Type", "text/html");
