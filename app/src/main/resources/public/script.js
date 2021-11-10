@@ -11,11 +11,19 @@ const main = async (url) => {
     const template = document.getElementById('list-item-template');
     const fileList = document.getElementById('file-list');
     const dirList = document.getElementById('dir-list');
+    const fileHead = document.getElementById('file-head');
+    const dirHead = document.getElementById('dir-head');
 
     const displayList = () => {
+	fileHead.style.display = "none";
+	dirHead.style.display = "none";
         fileList.innerHTML = "";
         dirList.innerHTML = "";
         for(let i = 0; i < files.length; i++) {
+	    if(i==0) {		
+		fileHead.style.display = "block";
+		dirHead.style.display = "block";
+	    }
             const item = template.content.cloneNode(true);
             item.querySelector('.link').innerText = files[i];
             item.querySelector('.link').setAttribute("href", window.location.href + 'file/' + path + '/' + files[i]);
