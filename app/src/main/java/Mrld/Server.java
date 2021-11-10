@@ -21,8 +21,10 @@ public class Server extends jLHS.http1_1server.Server {
         this.basePath = basePath;
         this.on(Method.GET, "/", ((request, response) -> {
             try {
+                response.setCode(301, "Moved Permanently");
                 response.writeHeader("Content-Type", "text/html");
-                response.write(getClass().getClassLoader().getResourceAsStream("index.html"));
+                response.writeHeader("Location", "/app");
+                response.write(getClass().getClassLoader().getResourceAsStream("Moved to <a href=\"/app\">/app</a>"));
                 response.end();
             } catch (ProtocolFormatException | IOException e) {
                 e.printStackTrace();
