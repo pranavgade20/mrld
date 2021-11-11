@@ -23,7 +23,7 @@ const main = async (url) => {
     const dirHead = document.getElementById('dir-head');
     const historyDisplay = document.getElementById('history');
 
-    historyDisplay.innerText = '/' + decodeURI(url).split('listFiles/')[1].replace(/\//g, " / ");
+    historyDisplay.innerText = '/ ' + decodeURI(url).split('listFiles/')[1].replace(/\//g, " / ");
 
     const displayList = () => {
         fileHead.style.display = "none";
