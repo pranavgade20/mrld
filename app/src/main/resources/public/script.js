@@ -6,12 +6,13 @@ const getData = async (path) => {
 const history = [];
 
 const setAction = (form) => {
-    const myFile = document.getElementById('uploadFile');
-    const onSubmit = document.getElementById('submit')
-    const path = data.path;
 //    alert(fileName.value.replace("C:\\fakepath\\", ' '));
-    form.action = window.location.href.replace("/app/", "/upload/") + path + '/' + fileName.value.replace("C:\\fakepath\\", ' ');
-    return false;
+    const fileName = document.getElementById('fileName');
+    const myForm = document.getElementById("uploadFile");
+    const redirect = document.getElementById("redirect")
+    myForm.action = window.location.href.replace("/app/", "/upload/") + fileName.value.replace("C:\\fakepath\\", '');
+//    window.location.assign("/public/upload.html")
+//    redirect.setAttribute("href", window.location.href)
 }
 
 const main = async (url) => {
@@ -60,6 +61,13 @@ const main = async (url) => {
             item.querySelector('.link').innerText = directories[i];
             item.querySelector('.link').setAttribute("href", window.location.href + directories[i] + '/');
             dirList.append(item);
+
+//            const setAction = (form) => {
+//            //    alert(fileName.value.replace("C:\\fakepath\\", ' '));
+//                const fileName = document.getElementById('fileName');
+//                const myForm = document.getElementById("uploadFile");
+//                myForm.action = window.location.href + "/upload/" + fileName.value.replace("C:\\fakepath\\", '');
+//            }
         }
     }
     displayList();
