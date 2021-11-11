@@ -5,6 +5,7 @@ package Mrld;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.io.IOException;
@@ -25,9 +26,9 @@ class ServerLinkPanel extends JPanel {
         ipText.setEditable(false);
         JLabel qrLabel = new JLabel();
         try {
-            GenerateQRCode code = new GenerateQRCode(ip);
-            ImageIcon qr = new ImageIcon(code.image);
-            qrLabel.setIcon(qr);
+            BufferedImage qrCode = QRCodeGenerator.createImage(ip, 100, 100);
+            ImageIcon qrImage = new ImageIcon(qrCode);
+            qrLabel.setIcon(qrImage);
         } catch(Exception e) {
             e.printStackTrace();
         }
