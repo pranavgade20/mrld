@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class App extends JFrame {
     Server server;
-    public JLabel logoLabel;
+    public JPanel logoAndQRPanel;
     public App() throws IOException, FontFormatException, URISyntaxException {
 
         AtomicReference<String> rootPath = new AtomicReference<>(System.getProperty("user.home"));
@@ -40,12 +40,12 @@ public class App extends JFrame {
 
         this.setIconImage(icon.getImage());
 
-        JPanel logoPanel= new JPanel();
-        logoLabel = new JLabel();
-        logoLabel.setIcon(logo);
-        logoLabel.setHorizontalAlignment(JLabel.CENTER);
-        logoPanel.setOpaque(false);
-        logoPanel.add(logoLabel);
+        // JPanel logoPanel= new JPanel();
+        // logoLabel = new JLabel();
+        // logoLabel.setIcon(logo);
+        // logoLabel.setHorizontalAlignment(JLabel.CENTER);
+        logoAndQRPanel.setOpaque(false);
+        logoAndQRPanel.add(new JLabel(logo));
 
         JLabel rootLabel = new JLabel("Your root directory is:");
         rootLabel.setFont(customFont);
@@ -137,6 +137,10 @@ public class App extends JFrame {
                     }
                     serverLinksPanel.revalidate();
                     serverLinksPanel.repaint();
+                    logoAndQRPanel.removeAll();
+                    logoAndQRPanel.add(new JLabel(logo));
+                    logoAndQRPanel.revalidate();
+                    logoAndQRPanel.repaint();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -181,8 +185,8 @@ public class App extends JFrame {
             try {
                 BufferedImage qrCode = QRCodeGenerator.createImage(ip, 100, 100);
                 ImageIcon qrImage = new ImageIcon(qrCode);
-                App.this.logoLabel.setIcon(qrImage);
-                logoLabel.removeAll();
+                App.this.logoAndQRPanel.add(new JLabel(qrImage));
+                // logoLabel.removeAll();
             } catch(Exception e) {
                 e.printStackTrace();
             }
