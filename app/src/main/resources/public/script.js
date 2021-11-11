@@ -6,9 +6,7 @@ const getData = async (path) => {
 const setAction = (form) => {
     const fileName = document.getElementById('fileName');
     const myForm = document.getElementById("uploadFile");
-    const redirect = document.getElementById("redirect");
     myForm.action = window.location.href.replace("/app/", "/upload/") + fileName.value.replace("C:\\fakepath\\", '');
-    redirect.setAttribute("href", window.location.href.replace("/upload/", "/app/") + window.location.href.replace(fileName.value.replace("C:\\fakepath\\", ''), ''))
 }
 
 const main = async (url) => {

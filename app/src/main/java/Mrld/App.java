@@ -24,16 +24,17 @@ import java.util.concurrent.atomic.AtomicReference;
 
 
 public class App extends JFrame {
-    Server server;
     public JPanel logoAndQRPanel;
+    Server server;
+
     public App() throws IOException, FontFormatException, URISyntaxException {
 
         AtomicReference<String> rootPath = new AtomicReference<>(System.getProperty("user.home"));
         Color primaryColor = new Color(185, 253, 244);
-        Color textBackgroundColor = new Color(223,253,251);
+        Color textBackgroundColor = new Color(223, 253, 251);
         this.setTitle("Mrld");
         setLocation(100, 100);
-        this.setSize(700, 700);
+        this.setSize(700, 400);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
@@ -55,24 +56,24 @@ public class App extends JFrame {
         JTextField rootText = new JFormattedTextField();
         rootText.setFont(customFont);
         rootText.setBackground(textBackgroundColor);
-        rootText.setBorder(new LineBorder(textBackgroundColor,0));
+        rootText.setBorder(new LineBorder(textBackgroundColor, 0));
         rootText.setPreferredSize(new Dimension(192, 24));
         rootText.setText(rootPath.get());
         rootText.setEditable(false);
 
         ImageIcon folder = new ImageIcon(getClass().getClassLoader().getResource("folder.png"));
-        JButton chooseRootButton = new JButton();//"Change root directory");
+        JButton chooseRootButton = new JButton();
         chooseRootButton.setIcon(folder);
         chooseRootButton.setToolTipText("Click here to change the root directory");
         chooseRootButton.setFont(customFont);
         chooseRootButton.setFocusPainted(false);
-        chooseRootButton.setBackground(new Color(158,237,233));
+        chooseRootButton.setBackground(new Color(158, 237, 233));
         chooseRootButton.setPreferredSize(new Dimension(24, 24));
         chooseRootButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             int response = fileChooser.showOpenDialog(this);
-            if(response == JFileChooser.APPROVE_OPTION) {
+            if (response == JFileChooser.APPROVE_OPTION) {
                 rootPath.set(fileChooser.getSelectedFile().getAbsolutePath());
                 rootText.setText(rootPath.get());
             }
@@ -91,21 +92,21 @@ public class App extends JFrame {
         var prompt = new JFormattedTextField();
         prompt.setEditable(false);
         prompt.setBackground(primaryColor);
-        prompt.setBorder(new LineBorder(primaryColor,2));
+        prompt.setBorder(new LineBorder(primaryColor, 2));
         prompt.setFont(customFont);
         prompt.setText("Press start to start the server");
 
         JButton startButton = new JButton("Start");
         startButton.setFont(customFont);
         startButton.setFocusPainted(false);
-        startButton.setBackground(new Color(158,237,233));
+        startButton.setBackground(new Color(158, 237, 233));
 
         JPanel serverPanel = new JPanel();
         serverPanel.setOpaque(false);
         serverPanel.add(prompt);
         serverPanel.add(startButton);
 
-        JPanel serverLinksPanel= new JPanel();
+        JPanel serverLinksPanel = new JPanel();
         serverLinksPanel.setLayout(new BoxLayout(serverLinksPanel, BoxLayout.Y_AXIS));
         serverLinksPanel.setOpaque(false);
 
@@ -119,10 +120,10 @@ public class App extends JFrame {
                             .flatMap(a -> Collections.list(a.getInetAddresses()).stream())
                             .filter(InetAddress::isSiteLocalAddress)
                             .filter(a -> !a.isLoopbackAddress())
-                            .map(a -> "http:/"+a+":" + port +"/")
+                            .map(a -> "http:/" + a + ":" + port + "/")
                             .toArray(String[]::new);
                     logoAndQRPanel.removeAll();
-                    for(String ip: ips) {
+                    for (String ip : ips) {
                         serverLinksPanel.add(new ServerLinkPanel(ip, customFont, textBackgroundColor));
                         System.out.println(ip);
                     }
@@ -169,7 +170,7 @@ public class App extends JFrame {
         serverControlPanel.setOpaque(false);
         serverControlPanel.setLayout(new BoxLayout(serverControlPanel, BoxLayout.Y_AXIS));
         serverControlPanel.add(serverPanel);
-        serverControlPanel.add(serverLinksPanel);        
+        serverControlPanel.add(serverLinksPanel);
         panel.add(serverControlPanel);
 
         JScrollPane scrollPane = new JScrollPane(this.getContentPane());
@@ -178,6 +179,7 @@ public class App extends JFrame {
         this.getContentPane().setBackground(primaryColor);
         this.setVisible(true);
     }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
@@ -191,11 +193,12 @@ public class App extends JFrame {
     class ServerLinkPanel extends JPanel {
         JTextField ipText;
         JLabel qrLabel;
+
         ServerLinkPanel(String ip, Font customFont, Color textBackGroundColor, boolean setQr) {
             ipText = new JFormattedTextField(ip);
             ipText.setFont(customFont);
             ipText.setBackground(textBackGroundColor);
-            ipText.setPreferredSize(new Dimension(200,24));
+            ipText.setPreferredSize(new Dimension(200, 24));
             ipText.setBorder(new LineBorder(textBackGroundColor));
             ipText.setEditable(false);
             qrLabel = new JLabel();
@@ -206,12 +209,12 @@ public class App extends JFrame {
                     qrLabel.setIcon(qrImage);
                     App.this.logoAndQRPanel.add(qrLabel);
                 }
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             ImageIcon copy = new ImageIcon(getClass().getClassLoader().getResource("copy.png"));
             JButton copyButton = new JButton();
-            copyButton.setBackground(new Color(158,237,233));
+            copyButton.setBackground(new Color(158, 237, 233));
             copyButton.setPreferredSize(new Dimension(24, 24));
             copyButton.setFocusPainted(false);
             copyButton.setIcon(copy);
@@ -221,11 +224,12 @@ public class App extends JFrame {
             this.add(copyButton);
             this.setOpaque(false);
         }
+
         ServerLinkPanel(String ip, Font customFont, Color textBackGroundColor) {
             this(ip, customFont, textBackGroundColor, true);
         }
 
-        public void setIpText (String ip) {
+        public void setIpText(String ip) {
             ipText.setText(ip);
             try {
                 BufferedImage qrCode = QRCodeGenerator.createImage(ip, 200, 200);
@@ -234,7 +238,7 @@ public class App extends JFrame {
                 App.this.logoAndQRPanel.add(qrLabel);
                 App.this.logoAndQRPanel.revalidate();
                 App.this.logoAndQRPanel.repaint();
-            } catch(Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

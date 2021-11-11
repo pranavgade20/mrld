@@ -95,7 +95,7 @@ public class Server extends jLHS.http1_1server.Server {
                             ranges[0] = "0";
                         }
                         from = Long.parseLong(ranges[0]);
-                        to = ranges.length > 2 && ranges[1].isEmpty() ? Files.size(file.toPath()) : (Long.parseLong(ranges[1])+1);
+                        to = ranges.length > 2 && ranges[1].isEmpty() ? Files.size(file.toPath()) : (Long.parseLong(ranges[1]) + 1);
                         if (from > to || to > Files.size(file.toPath())) {
                             response.setCode(416, "Range Not Satisfiable");
                             response.print("The requested range can not be satisfied.");
@@ -114,7 +114,7 @@ public class Server extends jLHS.http1_1server.Server {
                     response.setCode(206, "Partial Content");
                     response.writeHeader("Content-Type", Files.probeContentType(file.toPath()));
                     response.writeHeader("Content-Length", String.valueOf(to - from));
-                    response.writeHeader("Content-Range", "bytes " + from  + "-" + (to-1) + "/" + Files.size(file.toPath()));
+                    response.writeHeader("Content-Range", "bytes " + from + "-" + (to - 1) + "/" + Files.size(file.toPath()));
 
                     FileInputStream in = new FileInputStream(file);
                     in.skipNBytes(from);
@@ -122,6 +122,7 @@ public class Server extends jLHS.http1_1server.Server {
                     long finalFrom = from;
                     response.write(new InputStream() {
                         long remaining = finalTo - finalFrom;
+
                         @Override
                         public int read() throws IOException {
                             if (remaining-- > 0) return in.read();
