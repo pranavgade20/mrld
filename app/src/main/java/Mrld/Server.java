@@ -68,6 +68,7 @@ public class Server extends jLHS.http1_1server.Server {
                     return;
                 }
                 response.writeHeader("Content-Type", Files.probeContentType(new File(url.getPath()).toPath()));
+                response.writeHeader("Content-Length", String.valueOf(Files.size(new File(url.getPath()).toPath())));
                 response.write(getClass().getClassLoader().getResourceAsStream(request.getPath().substring(1)));
                 response.end();
             } catch (ProtocolFormatException | IOException e) {
