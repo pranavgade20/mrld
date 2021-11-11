@@ -110,6 +110,7 @@ public class App extends JFrame {
         serverPanel.add(startButton);
 
         JPanel serverLinksPanel= new JPanel();
+        serverLinksPanel.setLayout(new BoxLayout(serverLinksPanel, BoxLayout.Y_AXIS));
         serverLinksPanel.setOpaque(false);
 
         startButton.addActionListener((actionEvent) -> {
@@ -164,8 +165,11 @@ public class App extends JFrame {
         panel.setBackground(primaryColor);
         panel.add(logoAndQRPanel);
         panel.add(rootPanel);
-        panel.add(serverPanel);
-        panel.add(serverLinksPanel);
+        JPanel serverControlPanel = new JPanel();
+        serverControlPanel.setLayout(new BoxLayout(serverControlPanel, BoxLayout.Y_AXIS));
+        serverControlPanel.add(serverPanel);
+        serverControlPanel.add(serverLinksPanel);        
+        panel.add(serverControlPanel);
 
         JScrollPane scrollPane = new JScrollPane(this.getContentPane());
         this.setContentPane(scrollPane);
