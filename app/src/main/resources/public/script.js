@@ -6,18 +6,13 @@ const getData = async (path) => {
 const history = [];
 
 const setAction = (form) => {
-//    alert(fileName.value.replace("C:\\fakepath\\", ' '));
     const fileName = document.getElementById('fileName');
     const myForm = document.getElementById("uploadFile");
-    const redirect = document.getElementById("redirect")
     myForm.action = window.location.href.replace("/app/", "/upload/") + fileName.value.replace("C:\\fakepath\\", '');
-//    window.location.assign("/public/upload.html")
-//    redirect.setAttribute("href", window.location.href)
 }
 
 const main = async (url) => {
     const data = await getData(url);
-    const path = data.path;
     const files = data.files.sort((a, b) => a.name < b.name ? -1 : 1);
     const directories = data.directories.sort();
     const template = document.getElementById('list-item-template');
@@ -27,11 +22,7 @@ const main = async (url) => {
     const dirList = document.getElementById('dir-list');
     const fileHead = document.getElementById('file-head');
     const dirHead = document.getElementById('dir-head');
-    const backButton = document.getElementById('back');
     const historyDisplay = document.getElementById('history');
-
-    if (history.length > 0) backButton.style.display = "block";
-    else backButton.style.display = "none";
 
     historyDisplay.innerText = decodeURI(url).split('listFiles/')[1].replace(/\//g, " / ");
 
@@ -64,8 +55,6 @@ const main = async (url) => {
         }
     }
     displayList();
-
-    backButton.addEventListener("click", e => main(history.pop()));
 };
 
 

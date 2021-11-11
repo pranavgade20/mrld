@@ -182,8 +182,8 @@ public class Server extends jLHS.http1_1server.Server {
                 request.getRequestReader().getFormData("file").orElseThrow().getFormData().transferTo(fileOutputStream);
                 fileOutputStream.close();
 
-                response.writeHeader("Content-Type", "application/json");
-                response.print("{\"success\": \"file uploaded\"}");
+                response.writeHeader("Content-Type", "text/html");
+                response.write(getClass().getClassLoader().getResourceAsStream("public/upload.html"));
                 response.end();
             } catch (ProtocolFormatException | IOException e) {
                 try {
