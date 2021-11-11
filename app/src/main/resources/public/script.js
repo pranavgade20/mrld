@@ -61,13 +61,6 @@ const main = async (url) => {
             item.querySelector('.link').innerText = directories[i];
             item.querySelector('.link').setAttribute("href", window.location.href + directories[i] + '/');
             dirList.append(item);
-
-//            const setAction = (form) => {
-//            //    alert(fileName.value.replace("C:\\fakepath\\", ' '));
-//                const fileName = document.getElementById('fileName');
-//                const myForm = document.getElementById("uploadFile");
-//                myForm.action = window.location.href + "/upload/" + fileName.value.replace("C:\\fakepath\\", '');
-//            }
         }
     }
     displayList();

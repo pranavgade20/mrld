@@ -44,6 +44,7 @@ public class App extends JFrame {
         // logoLabel = new JLabel();
         // logoLabel.setIcon(logo);
         // logoLabel.setHorizontalAlignment(JLabel.CENTER);
+        logoAndQRPanel = new JPanel();
         logoAndQRPanel.setOpaque(false);
         logoAndQRPanel.add(new JLabel(logo));
 
@@ -118,6 +119,7 @@ public class App extends JFrame {
                             .filter(a -> !a.isLoopbackAddress())
                             .map(a -> "http:/"+a+":" + port +"/")
                             .toArray(String[]::new);
+                    logoAndQRPanel.removeAll();
                     for(String ip: ips) {
                         serverLinksPanel.add(new ServerLinkPanel(ip, customFont, textBackgroundColor));
                         System.out.println(ip);
@@ -152,7 +154,7 @@ public class App extends JFrame {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBackground(primaryColor);
-        panel.add(logoPanel);
+        panel.add(logoAndQRPanel);
         panel.add(rootPanel);
         panel.add(serverPanel);
         panel.add(serverLinksPanel);
