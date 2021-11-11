@@ -29,6 +29,16 @@ public class Server extends jLHS.http1_1server.Server {
                 e.printStackTrace();
             }
         }));
+        this.on(Method.GET, "/favicon.ico", ((request, response) -> {
+            try {
+                response.setCode(200, "OK");
+                response.writeHeader("Content-Type", "image/png");
+                response.write(getClass().getClassLoader().getResourceAsStream("icon.png"));
+                response.end();
+            } catch (ProtocolFormatException | IOException e) {
+                e.printStackTrace();
+            }
+        }));
         this.on(Method.GET, "/app/[\\S\\s]*", ((request, response) -> {
             try {
                 response.writeHeader("Content-Type", "text/html");

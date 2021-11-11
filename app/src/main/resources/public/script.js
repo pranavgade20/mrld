@@ -3,8 +3,6 @@ const getData = async (path) => {
     return data;
 }
 
-const history = [];
-
 const setAction = (form) => {
     const fileName = document.getElementById('fileName');
     const myForm = document.getElementById("uploadFile");

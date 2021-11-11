@@ -45,10 +45,6 @@ public class App extends JFrame {
 
         this.setIconImage(icon.getImage());
 
-        // JPanel logoPanel= new JPanel();
-        // logoLabel = new JLabel();
-        // logoLabel.setIcon(logo);
-        // logoLabel.setHorizontalAlignment(JLabel.CENTER);
         logoAndQRPanel = new JPanel();
         logoAndQRPanel.setOpaque(false);
         logoAndQRPanel.add(new JLabel(logo));
