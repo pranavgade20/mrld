@@ -170,6 +170,7 @@ public class App extends JFrame {
         panel.add(logoAndQRPanel);
         panel.add(rootPanel);
         JPanel serverControlPanel = new JPanel();
+        serverControlPanel.setOpaque(false);
         serverControlPanel.setLayout(new BoxLayout(serverControlPanel, BoxLayout.Y_AXIS));
         serverControlPanel.add(serverPanel);
         serverControlPanel.add(serverLinksPanel);        
