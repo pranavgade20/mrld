@@ -1,12 +1,22 @@
 * {
     box-sizing: border-box;
+    background-color: rgb(223,253,251)
 }
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
 #history {
     font-size: 1.2rem;
     padding: 1rem;
 }
-
+.title1{
+    font-family: sans-serif;
+}
+h1{
+    text-align: center;
+}
+h4{
+    font-family: sans-serif;
+    margin-left: 16px;
+}
 #back {
     margin-left: 1rem;
     font-size: 1.2rem;
@@ -18,14 +28,17 @@
 
 #file-list, #dir-list {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    grid-auto-rows: 56px;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    grid-auto-rows: 51px;
     grid-gap: 1rem;
 }
+#file-head,#dir-head{
 
+}
 .list-item {
     list-style: none;
     display:flex;
+    /*background-color: white;*/
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -43,15 +56,16 @@
     white-space: nowrap;
     text-overflow: ellipsis ellipsis;
     overflow: hidden;
-    display: flex;
+    /*display: flex;*/
     height: 100%;
     width: 100%;
     padding: 0.5rem;
-    justify-content: left;
-    align-items: center;
+    /*justify-content: left;*/
+    /*align-items: center;*/
     text-align: left ;
+    padding-top: 12px;
     text-decoration: none;
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Roboto Light', sans-serif;
     color: black;
 }
 .folder{
