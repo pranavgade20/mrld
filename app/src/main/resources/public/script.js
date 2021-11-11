@@ -10,7 +10,6 @@ const setAction = (form) => {
     const myForm = document.getElementById("uploadFile");
     myForm.action = window.location.href.replace("/app/", "/upload/") + fileName.value.replace("C:\\fakepath\\", '');
     redirect.setAttribute("href", window.location.href.replace("/upload/", "/app/") + window.location.href.replace(fileName.value.replace("C:\\fakepath\\", ''), ''))
-
 }
 
 const main = async (url) => {
