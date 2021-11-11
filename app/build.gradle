@@ -28,6 +28,7 @@ dependencies {
     implementation 'com.google.zxing:core:3.4.0'
     implementation 'com.google.zxing:javase:3.4.0'
 
+    implementation "com.github.alexdlaird:java-ngrok:1.5.5"
 }
 
 application {

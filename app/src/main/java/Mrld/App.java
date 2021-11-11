@@ -3,6 +3,11 @@
  */
 package Mrld;
 
+import com.github.alexdlaird.ngrok.NgrokClient;
+import com.github.alexdlaird.ngrok.protocol.CreateTunnel;
+import com.github.alexdlaird.ngrok.protocol.Proto;
+import com.github.alexdlaird.ngrok.protocol.Tunnel;
+
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -28,13 +33,13 @@ public class App extends JFrame {
         Color textBackgroundColor = new Color(223,253,251);
         this.setTitle("Mrld");
         setLocation(100, 100);
-        this.setSize(500, 500);
+        this.setSize(700, 700);
         this.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
         ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("icon.png"));
 
-        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(getClass().getClassLoader().getResource("font.ttf").toURI())).deriveFont(12f);
+        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(getClass().getClassLoader().getResource("font.ttf").toURI())).deriveFont(18f);
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         ge.registerFont(customFont);
 
@@ -126,6 +131,14 @@ public class App extends JFrame {
                     }
                     serverLinksPanel.revalidate();
                     serverLinksPanel.repaint();
+
+                    new Thread(() -> {
+                        Tunnel httpTunnel = new NgrokClient.Builder().build().connect(
+                                new CreateTunnel.Builder().withProto(Proto.HTTP).withAddr(port).build()
+                        );
+
+                        serverLinksPanel.add(new ServerLinkPanel(httpTunnel.getPublicUrl(), customFont, textBackgroundColor));
+                    }).start();
                     startButton.setText("Stop");
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -133,16 +146,11 @@ public class App extends JFrame {
             } else {
                 try {
                     server.stop();
-                    Component[] components = serverLinksPanel.getComponents();
-                    for(Component comp: components) {
-                        serverLinksPanel.remove(comp);
-                    }
-                    serverLinksPanel.revalidate();
-                    serverLinksPanel.repaint();
                     logoAndQRPanel.removeAll();
                     logoAndQRPanel.add(new JLabel(logo));
-                    logoAndQRPanel.revalidate();
-                    logoAndQRPanel.repaint();
+                    serverLinksPanel.removeAll();
+                    App.this.revalidate();
+                    App.this.repaint();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -185,7 +193,7 @@ public class App extends JFrame {
             ipText.setEditable(false);
             JLabel qrLabel = new JLabel();
             try {
-                BufferedImage qrCode = QRCodeGenerator.createImage(ip, 100, 100);
+                BufferedImage qrCode = QRCodeGenerator.createImage(ip, 200, 200);
                 ImageIcon qrImage = new ImageIcon(qrCode);
                 App.this.logoAndQRPanel.add(new JLabel(qrImage));
                 // logoLabel.removeAll();
