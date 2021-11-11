@@ -22,14 +22,7 @@ h4{
     font-family: sans-serif;
     margin-left: 16px;
 }
-#back {
-    margin-left: 1rem;
-    font-size: 1.2rem;
-    background-color: transparent;
-    border: 2px lightgrey solid;
-    cursor: pointer;
-    border-radius: 5px;
-}
+
 
 #file-list, #dir-list {
     display: grid;
@@ -43,7 +36,7 @@ h4{
 .list-item {
     list-style: none;
     display:flex;
-    /*background-color: white;*/
+    background-color:#C1D9D5;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -51,16 +44,18 @@ h4{
     overflow: hidden;
     display: flex;
     border-radius: 10px;
-    border: 2px lightgrey solid;
+    border: 2px grey solid;
 }
 .icons{
     padding: 4px;
+    background-color: #C1D9D5;
 }
 .link{
     margin: 0;
     white-space: nowrap;
     text-overflow: ellipsis ellipsis;
     overflow: hidden;
+    background-color:#C1D9D5;
     /*display: flex;*/
     height: 100%;
     width: 100%;
