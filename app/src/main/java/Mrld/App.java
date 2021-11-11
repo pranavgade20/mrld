@@ -39,7 +39,7 @@ public class App extends JFrame {
         ImageIcon logo = new ImageIcon(getClass().getClassLoader().getResource("logo.png"));
         ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource("icon.png"));
 
-        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(getClass().getClassLoader().getResource("font.ttf").toURI())).deriveFont(18f);
+        Font customFont = Font.createFont(Font.TRUETYPE_FONT, new File(getClass().getClassLoader().getResource("font.ttf").toURI())).deriveFont(16f);
         GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
         ge.registerFont(customFont);
 
@@ -134,11 +134,15 @@ public class App extends JFrame {
                     serverLinksPanel.repaint();
 
                     new Thread(() -> {
+                        ServerLinkPanel ngrokPanel = new ServerLinkPanel("starting tunnel...", customFont, textBackgroundColor, false);
+                        serverLinksPanel.add(ngrokPanel);
+                        serverLinksPanel.revalidate();
+                        serverLinksPanel.repaint();
                         Tunnel httpTunnel = new NgrokClient.Builder().build().connect(
                                 new CreateTunnel.Builder().withProto(Proto.HTTP).withAddr(port).build()
                         );
 
-                        serverLinksPanel.add(new ServerLinkPanel(httpTunnel.getPublicUrl(), customFont, textBackgroundColor));
+                        ngrokPanel.setIpText(httpTunnel.getPublicUrl());
                     }).start();
                     startButton.setText("Stop");
                 } catch (IOException e) {
@@ -188,19 +192,23 @@ public class App extends JFrame {
     }
 
     class ServerLinkPanel extends JPanel {
-        ServerLinkPanel(String ip, Font customFont, Color textBackGroundColor) {
-            JTextField ipText = new JFormattedTextField(ip);
+        JTextField ipText;
+        JLabel qrLabel;
+        ServerLinkPanel(String ip, Font customFont, Color textBackGroundColor, boolean setQr) {
+            ipText = new JFormattedTextField(ip);
             ipText.setFont(customFont);
             ipText.setBackground(textBackGroundColor);
             ipText.setPreferredSize(new Dimension(200,24));
             ipText.setBorder(new LineBorder(textBackGroundColor));
             ipText.setEditable(false);
-            JLabel qrLabel = new JLabel();
+            qrLabel = new JLabel();
             try {
-                BufferedImage qrCode = QRCodeGenerator.createImage(ip, 200, 200);
-                ImageIcon qrImage = new ImageIcon(qrCode);
-                App.this.logoAndQRPanel.add(new JLabel(qrImage));
-                // logoLabel.removeAll();
+                if (setQr) {
+                    BufferedImage qrCode = QRCodeGenerator.createImage(ip, 200, 200);
+                    ImageIcon qrImage = new ImageIcon(qrCode);
+                    qrLabel.setIcon(qrImage);
+                    App.this.logoAndQRPanel.add(qrLabel);
+                }
             } catch(Exception e) {
                 e.printStackTrace();
             }
@@ -211,11 +219,27 @@ public class App extends JFrame {
             copyButton.setFocusPainted(false);
             copyButton.setIcon(copy);
             copyButton.setToolTipText("Click here to copy the URL");
-            copyButton.addActionListener(e -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(ip), null));
+            copyButton.addActionListener(e -> Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(ipText.getText()), null));
             this.add(ipText);
             this.add(copyButton);
             this.setOpaque(false);
-            this.add(qrLabel);
+        }
+        ServerLinkPanel(String ip, Font customFont, Color textBackGroundColor) {
+            this(ip, customFont, textBackGroundColor, true);
+        }
+
+        public void setIpText (String ip) {
+            ipText.setText(ip);
+            try {
+                BufferedImage qrCode = QRCodeGenerator.createImage(ip, 200, 200);
+                ImageIcon qrImage = new ImageIcon(qrCode);
+                qrLabel.setIcon(qrImage);
+                App.this.logoAndQRPanel.add(qrLabel);
+                App.this.logoAndQRPanel.revalidate();
+                App.this.logoAndQRPanel.repaint();
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
