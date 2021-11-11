@@ -38,7 +38,7 @@ h4{
 .list-item {
     list-style: none;
     display:flex;
-    /*background-color: white;*/
+    background-color:#C1D9D5;
     flex-direction: row;
     justify-content: center;
     align-items: center;
@@ -50,12 +50,14 @@ h4{
 }
 .icons{
     padding: 4px;
+    background-color: #C1D9D5;
 }
 .link{
     margin: 0;
     white-space: nowrap;
     text-overflow: ellipsis ellipsis;
     overflow: hidden;
+    background-color:#C1D9D5;
     /*display: flex;*/
     height: 100%;
     width: 100%;
