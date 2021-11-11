@@ -31,7 +31,7 @@ const main = async (url) => {
     if (history.length > 0) backButton.style.display = "block";
     else backButton.style.display = "none";
 
-    historyDisplay.innerText = url.split('listFiles/')[1].replace(/\//g, " > ");
+    historyDisplay.innerText = decodeURI(url).split('listFiles/')[1].replace(/\//g, " / ");
 
     const displayList = () => {
         fileHead.style.display = "none";
