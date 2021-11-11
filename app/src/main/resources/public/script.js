@@ -17,10 +17,11 @@ const setAction = (form) => {
 const main = async (url) => {
     const data = await getData(url);
     const path = data.path;
-    const files = data.files.sort();
+    const files = data.files.sort((a, b) => a.name < b.name ? -1 : 1);
     const directories = data.directories.sort();
     const template = document.getElementById('list-item-template');
     const dir_template = document.getElementById('list-item-template-dir');
+    const video_template = document.getElementById('list-item-template-video');
     const fileList = document.getElementById('file-list');
     const dirList = document.getElementById('dir-list');
     const fileHead = document.getElementById('file-head');
@@ -43,9 +44,14 @@ const main = async (url) => {
                 fileHead.style.display = "block";
                 dirHead.style.display = "block";
             }
-            const item = template.content.cloneNode(true);
-            item.querySelector('.link').innerText = files[i];
-            item.querySelector('.link').setAttribute("href", window.location.href.replace("/app/", "/file/") + files[i]);
+            let name = files[i].name;
+            let type = files[i].type;
+            let item;
+            if (type.startsWith("video/")) {
+                item = video_template.content.cloneNode(true);
+            } else item = template.content.cloneNode(true);
+            item.querySelector('.link').innerText = name;
+            item.querySelector('.link').setAttribute("href", window.location.href.replace("/app/", "/file/") + name);
             fileList.append(item);
         }
 

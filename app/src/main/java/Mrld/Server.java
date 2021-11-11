@@ -147,7 +147,19 @@ public class Server extends jLHS.http1_1server.Server {
                 response.writeHeader("Content-Type", "application/json");
                 response.print("{\n\"path\": \"" + request.getPath().substring("/listFiles/".length()) + "\"");
                 response.print(",\n\"files\":");
-                response.print(Arrays.stream(file.listFiles()).filter(File::isFile).map(f -> "\"" + f.getName() + "\"").collect(Collectors.toList()).toString());
+                response.print(Arrays.stream(file.listFiles())
+                        .filter(File::isFile)
+                        // {"name": "asdf", "type": "text/json"}
+                        .map(f -> {
+                            try {
+                                return "{\"name\": \"" + f.getName() + "\", " +
+                                        "\"type\": \"" + Files.probeContentType(f.toPath()) + "\"}";
+                            } catch (IOException e) {
+                                return "application/octet-stream";
+                            }
+                        })
+                        .collect(Collectors.toList())
+                        .toString());
                 response.print(",\n\"directories\":");
                 response.print(Arrays.stream(file.listFiles()).filter(File::isDirectory).map(f -> "\"" + f.getName() + "\"").collect(Collectors.toList()).toString());
                 response.print("\n}");
