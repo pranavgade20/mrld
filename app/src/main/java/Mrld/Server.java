@@ -96,6 +96,7 @@ public class Server extends jLHS.http1_1server.Server {
 
                 if (range == null) {
                     response.writeHeader("Content-Type", Files.probeContentType(file.toPath()));
+                    response.writeHeader("Content-Length", String.valueOf(Files.size(file.toPath())));
                     response.write(new FileInputStream(file));
                     response.end();
                 } else {
